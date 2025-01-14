@@ -6,11 +6,44 @@ class CircuitCalculatorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Calculadora de Circuitos Elétricos")
-        self.root.geometry("600x600")
-        self.root.config(bg="#f4f4f9")
+      
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
 
-        # Label e Dropdown de Opções
-        self.option_label = tk.Label(root, text="Selecione o tipo de cálculo:", font=("Arial", 14), bg="#f4f4f9")
+        # Define o tamanho da tela no PC
+        width = int(screen_width * 0.9)
+        height = int(screen_height * 0.9)
+
+        WID = (screen_width - width) // 2
+        LIT = (screen_height - height) // 2
+
+        self.root.geometry(f"{width}x{height}+{WID}+{LIT}")
+        self.root.config(bg="#1e1e2e")
+
+        self.calculation_history = []
+
+        # Título
+        self.header_frame = tk.Frame(self.root, bg="#1e1e2e")
+        self.header_frame.pack(fill="x", pady=20)
+        self.title_label = tk.Label(
+            self.header_frame,
+            text="Calculadora de Circuitos Elétricos",
+            font=("Arial", 28, "bold"),
+            bg="#1e1e2e",
+            fg="#ffffff"
+        )
+        self.title_label.pack()
+
+        # Seletor de opções
+        self.option_frame = tk.Frame(self.root, bg="#1e1e2e")
+        self.option_frame.pack(fill="x", pady=10)
+        self.option_label = tk.Label(
+            self.option_frame,
+            text="Selecione o tipo de cálculo:",
+            font=("Arial", 18),
+            bg="#1e1e2e",
+            fg="#ffffff"
+        )
         self.option_label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
         self.options = [
@@ -22,104 +55,74 @@ class CircuitCalculatorApp:
             "Energia Armazenada (Capacitor/Indutor)",
         ]
         self.selected_option = tk.StringVar(value=self.options[0])
-        self.option_menu = tk.OptionMenu(root, self.selected_option, *self.options)
-        self.option_menu.config(width=40, font=("Arial", 12))
-        self.option_menu.grid(row=1, column=0, padx=20, pady=5)
+        self.option_menu = tk.OptionMenu(
+            self.option_frame, self.selected_option, *self.options
+        )
+        self.option_menu.config(
+            width=30,
+            font=("Arial", 14),
+            bg="#44475a",
+            fg="#ffffff",
+            relief="groove"
+        )
+        self.option_menu.grid(row=0, column=1, padx=25, pady=10, sticky="w")
 
-        # Botão para Selecionar
-        self.select_button = tk.Button(root, text="Selecionar", command=self.show_inputs, font=("Arial", 12), bg="#4CAF50", fg="white", relief="raised")
-        self.select_button.grid(row=2, column=0, padx=20, pady=15, sticky="w")
+        self.select_button = tk.Button(
+            self.option_frame,
+            text="Selecionar",
+            command=self.show_inputs,
+            font=("Arial", 16),
+            bg="#50fa7b",
+            fg="#000000",
+            relief="groove",
+            padx=15
+        )
+        self.select_button.grid(row=1, column=0, padx=30, pady=10, sticky="w")
+        
+        # Entradas e resultado
+        self.inputs_frame = tk.Frame(self.root, bg="#1e1e2e")
+        self.inputs_frame.pack(fill="x", pady=20)
+        self.result_frame = tk.Frame(self.root, bg="#1e1e2e")
+        self.result_frame.pack(fill="x", pady=10)
+        self.result_label = tk.Label(
+            self.result_frame,
+            text="Resultado:",
+            font=("Arial", 20, "bold"),
+            bg="#1e1e2e",
+            fg="#8be9fd"
+        )
+        self.result_label.pack()
 
-        # Frame para Entradas
-        self.inputs_frame = tk.Frame(root, bg="#f4f4f9")
-        self.inputs_frame.grid(row=3, column=0, padx=20, pady=10)
+        # Aba de Histórico
+        self.history_button_frame = tk.Frame(self.root, bg="#1e1e2e")
+        self.history_button_frame.pack(fill="x", pady=10)
+        self.history_button = tk.Button(
+            self.history_button_frame,
+            text="Visualizar Histórico de Cálculos",
+            command=self.toggle_history,
+            font=("Arial", 16),
+            bg="#ff79c6",
+            fg="#000000",
+            relief="groove",
+            padx=10
+        )
+        self.history_button.pack()
 
-        # Resultado
-        self.result_label = tk.Label(root, text="Resultado: ", font=("Arial", 14), bg="#f4f4f9")
-        self.result_label.grid(row=4, column=0, padx=20, pady=20, sticky="w")
+        self.history_frame = tk.Frame(self.root, bg="#1e1e2e")
+        self.history_label = tk.Label(
+            self.history_frame,
+            text="Histórico de Cálculos",
+            font=("Arial", 20, "bold"),
+            bg="#1e1e2e",
+            fg="#ffb86c"
+        )
+        self.history_label.pack(pady=10)
 
-    def show_inputs(self):
-        """Exibe os campos de entrada para o cálculo selecionado."""
-        for widget in self.inputs_frame.winfo_children():
-            widget.destroy()
+        self.history_listbox = tk.Listbox(self.history_frame, font=("Arial", 14), width=50, height=10)
+        self.history_listbox.pack(pady=10)
+        self.history_frame.pack_forget()  # Inicialmente oculto
 
-        option = self.selected_option.get()
-
-        if option == "Resistores (Série e Paralelo)":
-            self.show_resistors_inputs()
-        elif option == "Divisores de Tensão":
-            self.show_divider_inputs()
-        elif option == "Capacitância Equivalente":
-            self.show_capacitance_inputs()
-        elif option == "Indutância Equivalente":
-            self.show_inductance_inputs()
-        elif option == "Potência":
-            self.show_power_inputs()
-        elif option == "Energia Armazenada (Capacitor/Indutor)":
-            self.show_energy_inputs()
-
-    # Funções para Entradas e Cálculos
-
-    def show_resistors_inputs(self):
-        tk.Label(self.inputs_frame, text="Resistores (separados por vírgula):", font=("Arial", 12), bg="#f4f4f9").pack()
-        self.resistors_entry = tk.Entry(self.inputs_frame, width=40, font=("Arial", 12))
-        self.resistors_entry.pack(pady=5)
-
-        tk.Button(
-            self.inputs_frame, text="Calcular Série", command=self.calculate_series, font=("Arial", 12), bg="#2196F3", fg="black", relief="raised"
-        ).pack(pady=5)
-        tk.Button(
-            self.inputs_frame, text="Calcular Paralelo", command=self.calculate_parallel, font=("Arial", 12), bg="#2196F3", fg="white", relief="raised"
-        ).pack(pady=5)
-
-    def calculate_series(self):
-        try:
-            resistors = self._get_values(self.resistors_entry)
-            result = sum(resistors)
-            self.result_label.config(text=f"Resultado (Série): {result:.2f} Ω")
-        except ValueError as e:
-            messagebox.showerror("Erro", str(e))
-
-    def calculate_parallel(self):
-        try:
-            resistors = self._get_values(self.resistors_entry)
-            result = 1 / sum(1 / r for r in resistors if r > 0)
-            self.result_label.config(text=f"Resultado (Paralelo): {result:.2f} Ω")
-        except ValueError as e:
-            messagebox.showerror("Erro", str(e))
-
-    def show_divider_inputs(self):
-        tk.Label(self.inputs_frame, text="Tensão de Entrada (V):", font=("Arial", 12), bg="#f4f4f9").pack()
-        self.voltage_entry = tk.Entry(self.inputs_frame, font=("Arial", 12))
-        self.voltage_entry.pack(pady=5)
-
-        tk.Label(self.inputs_frame, text="Resistores R1 e R2 (separados por vírgula):", font=("Arial", 12), bg="#f4f4f9").pack()
-        self.resistors_divider_entry = tk.Entry(self.inputs_frame, font=("Arial", 12))
-        self.resistors_divider_entry.pack(pady=5)
-
-        tk.Button(
-            self.inputs_frame, text="Calcular Divisor", command=self.calculate_divider, font=("Arial", 12), bg="#2196F3", fg="white", relief="raised"
-        ).pack(pady=5)
-
-    def calculate_divider(self):
-        try:
-            voltage = float(self.voltage_entry.get())
-            r1, r2 = map(float, self.resistors_divider_entry.get().split(","))
-            v_out = voltage * (r2 / (r1 + r2))
-            self.result_label.config(text=f"Saída do Divisor: {v_out:.2f} V")
-        except ValueError:
-            messagebox.showerror("Erro", "Insira valores válidos.")
-
-    # As outras funções de cálculo permanecem as mesmas...
-
-    def _get_values(self, entry):
-        """Converte os valores de entrada separados por vírgula em uma lista de floats."""
-        try:
-            values = entry.get().split(",")
-            return [float(value.strip()) for value in values]
-        except ValueError:
-            raise ValueError("Insira valores válidos separados por vírgula.")
-
+    # Restante do código...
 
 if __name__ == "__main__":
     root = tk.Tk()

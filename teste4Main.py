@@ -437,20 +437,6 @@ class CircuitCalculatorApp:
         except ValueError:
             messagebox.showerror("Erro", "Insira valores válidos.")
 
-    def _get_values(self, entry):
-        """Converte a entrada de texto para uma lista de floats."""
-        try:
-            values = entry.get().split(",")
-            return [float(value.strip()) for value in values]
-        except ValueError:
-            raise ValueError("Insira valores válidos separados por vírgula.")
-
-
-    #class HistoryAnotationApp:
-       # def __init__(self, CircuitCalculatorApp, rooot):
-          #  self.rooot = rooot
-            #self.optionFrame = tk.Framee(self.rooot, bg="#1e1e3e")
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = CircuitCalculatorApp(root)
