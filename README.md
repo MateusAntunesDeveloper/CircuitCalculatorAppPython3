@@ -17,6 +17,7 @@ Alternativamente, você pode executar o aplicativo diretamente:
 Ainda na seção main, clique em calculadoraCircuito.exe e selecione Download raw file.
 Observação:
 Caso ocorra um alerta do SmartScreen no Windows relacionado à confiabilidade do arquivo por ser um executável (.exe), siga estas etapas para prosseguir:
+Suporte apenas para windows
 
 Clique nos três pontos exibidos no alerta.
 Selecione Manter e, em seguida, clique em Manter mesmo assim.
